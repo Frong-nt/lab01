@@ -1,21 +1,83 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import './detail_screen.dart';
-class FirstScreen extends StatelessWidget{
-  int num = 0;
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:image_picker/image_picker.dart';
+class FirstScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return FirstSceenState();
+  }
+}
+
+class FirstSceenState extends State {
+  List<String> _passengers = ["", "1", "2", "3", "4", "5"];
+  String _passenger = "1";
+  File _image;
+
+  Future getImage() async{
+    var image = await ImagePicker.pickImage(source:ImageSource.camera);
+    setState(() {
+          _image = image;
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(
-        title: Text("First Screen"),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.camera),
+        onPressed: (){
+          getImage();
+        },
+      ),
+        appBar: AppBar(
+          title: Text("First Screen"),
         ),
-        body: Center(child: RaisedButton(child: Text("Go Go Power Ranger"),onPressed: (){
-          num += 1;
-          Navigator.push(context, MaterialPageRoute(builder: (context) => DetailScreen(title: "$num",)));}
-          
-          ,),
-        ),
-      );
+        body: Form(
+          child: ListView(
+            children: <Widget>[
+              _image == null? Text("No image"): Image.file(_image),
+              InputDecorator(
+                decoration: InputDecoration(
+                  icon: Icon(Icons.people),
+                  labelText: "Passenger"
+                ),
+                isEmpty: true,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isDense: true,
+                    value: _passenger,
+                    onChanged: (String value) {
+                      setState(() {
+                          _passenger = value;
+                      });
+                    },
+                    items: _passengers.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+             DateTimePickerFormField(
+            dateOnly: true,
+            format: DateFormat("yyyy-MM-dd"),
+            decoration: InputDecoration(labelText: 'Select Date'),
+            initialValue: DateTime.now(), //Add this in your Code.
+            // initialDate: DateTime(2017),
+            onSaved: (value) {
+              debugPrint(value.toString());
+            },
+          ),
+            ],
+          ),
+        ));
   }
-
 }
